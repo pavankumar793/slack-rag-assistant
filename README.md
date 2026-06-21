@@ -1,4 +1,4 @@
-# P-Bot
+# slack-rag-assistant
 
 P-Bot is a RAG Slack assistant with two parts:
 
