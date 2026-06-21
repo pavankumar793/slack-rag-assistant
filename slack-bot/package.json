@@ -1,0 +1,16 @@
+{
+  "name": "p-bot-slack-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@slack/bolt": "^4.4.0",
+    "axios": "^1.12.0",
+    "dotenv": "^17.0.0"
+  },
+  "devDependencies": {}
+}

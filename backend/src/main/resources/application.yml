@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: P-Bot
+  docker:
+    compose:
+      readiness:
+        timeout: 10m
+  ai:
+    model:
+      chat: ollama
+      embedding: transformers
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      chat:
+        options:
+          model: ${PBOT_OLLAMA_CHAT_MODEL:qwen2.5:7b}
+          temperature: 0.2
+    vectorstore:
+      qdrant:
+        host: ${QDRANT_HOST:localhost}
+        port: ${QDRANT_GRPC_PORT:6334}
+        api-key: ${QDRANT_API_KEY:}
+        collection-name: ${QDRANT_COLLECTION:pbot_docs}
+        initialize-schema: true
+        use-tls: ${QDRANT_USE_TLS:false}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+pbot:
+  rag:
+    documents-path: ${PBOT_DOCS_PATH:../docs}
+    top-k: ${PBOT_RAG_TOP_K:50}
+    reranked-k: ${PBOT_RAG_RERANKED_K:8}
+    similarity-threshold: ${PBOT_RAG_SIMILARITY_THRESHOLD:0.0}
+    ingest-on-startup: ${PBOT_INGEST_ON_STARTUP:true}
+    reranker-enabled: ${PBOT_RERANKER_ENABLED:true}
+    reranker-url: ${PBOT_RERANKER_URL:http://localhost:8081/rerank}

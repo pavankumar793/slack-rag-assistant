@@ -1,0 +1,19 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+  reranker:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-latest
+    command: ["--model-id", "BAAI/bge-reranker-base"]
+    ports:
+      - "8081:80"
+    volumes:
+      - reranker-data:/data
+
+volumes:
+  qdrant-data:
+  reranker-data:

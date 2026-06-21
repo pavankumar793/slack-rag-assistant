@@ -1,0 +1,15 @@
+.env
+.DS_Store
+Thumbs.db
+
+# Java
+target/
+*.class
+.m2/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Local generated files
+backend.zip
