@@ -13,3 +13,4 @@ npm-debug.log*
 
 # Local generated files
 backend.zip
+.cache/

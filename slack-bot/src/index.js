@@ -136,7 +136,7 @@ function messageBlocks(message) {
 
 function formatAnswerText(data) {
   const answer = data.answer ?? 'No answer returned.';
-  const sources = Array.isArray(data.sources) ? data.sources : [];
+  const sources = uniqueSources(data.sources);
   if (sources.length === 0) {
     return answer;
   }
@@ -150,7 +150,7 @@ function formatAnswerText(data) {
 
 function formatAnswerBlocks(data) {
   const answer = data.answer ?? 'No answer returned.';
-  const sources = Array.isArray(data.sources) ? data.sources : [];
+  const sources = uniqueSources(data.sources);
   const blocks = messageBlocks(answer);
 
   if (sources.length > 0) {
@@ -167,6 +167,14 @@ function formatAnswerBlocks(data) {
   }
 
   return blocks;
+}
+
+function uniqueSources(sources) {
+  if (!Array.isArray(sources)) {
+    return [];
+  }
+
+  return [...new Map(sources.map((source) => [source.source, source])).values()];
 }
 
 await app.start();

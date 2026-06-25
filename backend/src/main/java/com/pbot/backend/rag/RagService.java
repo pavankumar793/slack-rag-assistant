@@ -4,10 +4,10 @@ import com.pbot.backend.api.AskRequest;
 import com.pbot.backend.api.AskResponse;
 import com.pbot.backend.api.SourceDocument;
 import com.pbot.backend.config.RagProperties;
+import com.pbot.backend.llm.GitHubModelsClient;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -17,14 +17,14 @@ import org.springframework.stereotype.Service;
 public class RagService {
 
     private final VectorStore vectorStore;
-    private final ChatClient chatClient;
+    private final GitHubModelsClient modelsClient;
     private final DocumentReranker reranker;
     private final RagProperties properties;
 
-    public RagService(VectorStore vectorStore, ChatClient.Builder chatClientBuilder,
+    public RagService(VectorStore vectorStore, GitHubModelsClient modelsClient,
             DocumentReranker reranker, RagProperties properties) {
         this.vectorStore = vectorStore;
-        this.chatClient = chatClientBuilder.build();
+        this.modelsClient = modelsClient;
         this.reranker = reranker;
         this.properties = properties;
     }
@@ -41,24 +41,20 @@ public class RagService {
                 .map(this::formatContextDocument)
                 .collect(Collectors.joining("\n\n---\n\n"));
 
-        String answer = chatClient.prompt()
-                .system("""
+        String answer = modelsClient.complete("""
                         You are P-Bot, a concise Slack assistant.
                         Answer only from the provided context.
                         If the context does not contain the answer, say that you do not know.
+                        Preserve facts from Markdown tables, including row labels, column labels, and cell values.
                         Include short source names when useful.
-                        """)
-                .user(user -> user.text("""
+                        """, """
                         Question:
-                        {question}
+                        %s
 
                         Context:
-                        {context}
-                        """)
-                        .param("question", request.question())
-                        .param("context", context.isBlank() ? "No matching documents were found." : context))
-                .call()
-                .content();
+                        %s
+                        """.formatted(request.question(),
+                        context.isBlank() ? "No matching documents were found." : context));
 
         return new AskResponse(answer, contextDocuments.stream().map(this::toSource).toList());
     }

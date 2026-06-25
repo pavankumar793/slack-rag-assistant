@@ -57,4 +57,4 @@ Severity one incidents require acknowledgement within fifteen minutes. Severity 
 | Document uploads | Content Operations | Bi-weekly |
 | Incident escalation | Support Lead | Quarterly |
 
-Revision note: this sample was regenerated to change the content hash and exercise the update flow in the ingestion API.
+Revision note: this sample was regenerated to change the content hash and exercise the update flow in the ingestion API. 

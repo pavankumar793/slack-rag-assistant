@@ -3,18 +3,17 @@ spring:
     name: P-Bot
   docker:
     compose:
+      enabled: ${PBOT_COMPOSE_ENABLED:false}
       readiness:
         timeout: 10m
   ai:
     model:
-      chat: ollama
       embedding: transformers
-    ollama:
-      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
-      chat:
-        options:
-          model: ${PBOT_OLLAMA_CHAT_MODEL:qwen2.5:7b}
-          temperature: 0.2
+    embedding:
+      transformer:
+        cache:
+          enabled: true
+          directory: ${PBOT_TRANSFORMERS_CACHE_DIR:../.cache/spring-ai-transformers}
     vectorstore:
       qdrant:
         host: ${QDRANT_HOST:localhost}
@@ -31,6 +30,14 @@ management:
         include: health,info
 
 pbot:
+  llm:
+    github:
+      endpoint: ${PBOT_GITHUB_MODELS_ENDPOINT:https://models.github.ai/inference/chat/completions}
+      token: ${GITHUB_TOKEN:}
+      model: ${PBOT_GITHUB_MODEL:openai/gpt-4.1-mini}
+      api-version: ${PBOT_GITHUB_API_VERSION:2026-03-10}
+      temperature: ${PBOT_LLM_TEMPERATURE:0.2}
+      max-tokens: ${PBOT_LLM_MAX_TOKENS:1200}
   rag:
     documents-path: ${PBOT_DOCS_PATH:../docs}
     top-k: ${PBOT_RAG_TOP_K:50}
