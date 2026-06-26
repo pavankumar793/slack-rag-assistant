@@ -72,12 +72,29 @@ public class DocumentIngestionService implements ApplicationRunner {
         List<Path> candidates = List.of(
                 configuredPath.toAbsolutePath().normalize(),
                 Path.of("docs").toAbsolutePath().normalize(),
-                Path.of("..", "docs").toAbsolutePath().normalize());
+                Path.of("..", "docs").toAbsolutePath().normalize(),
+                Path.of("..", "..", "docs").toAbsolutePath().normalize());
 
-        return candidates.stream()
+        Optional<Path> matchedCandidate = candidates.stream()
                 .filter(Files::exists)
-                .findFirst()
-                .orElse(candidates.getFirst());
+                .findFirst();
+        if (matchedCandidate.isPresent()) {
+            return matchedCandidate.get();
+        }
+
+        return findDocsDirectoryFromCurrentPath().orElse(candidates.getFirst());
+    }
+
+    private Optional<Path> findDocsDirectoryFromCurrentPath() {
+        Path currentPath = Path.of("").toAbsolutePath().normalize();
+        while (currentPath != null) {
+            Path docsPath = currentPath.resolve("docs").normalize();
+            if (Files.exists(docsPath)) {
+                return Optional.of(docsPath);
+            }
+            currentPath = currentPath.getParent();
+        }
+        return Optional.empty();
     }
 
     private List<Document> readDocuments(Path docsPath) {
