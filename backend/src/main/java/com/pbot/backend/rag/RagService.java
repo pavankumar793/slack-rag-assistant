@@ -19,17 +19,21 @@ public class RagService {
     private final VectorStore vectorStore;
     private final GitHubModelsClient modelsClient;
     private final DocumentReranker reranker;
+    private final ConversationMemoryService memoryService;
     private final RagProperties properties;
 
     public RagService(VectorStore vectorStore, GitHubModelsClient modelsClient,
-            DocumentReranker reranker, RagProperties properties) {
+            DocumentReranker reranker, ConversationMemoryService memoryService, RagProperties properties) {
         this.vectorStore = vectorStore;
         this.modelsClient = modelsClient;
         this.reranker = reranker;
+        this.memoryService = memoryService;
         this.properties = properties;
     }
 
     public AskResponse ask(AskRequest request) {
+        String conversationId = memoryService.conversationId(request.channelId(), request.threadTs(), request.userId());
+        String memory = formatMemory(memoryService.recentTurns(conversationId));
         List<Document> matches = vectorStore.similaritySearch(SearchRequest.builder()
                 .query(request.question())
                 .topK(properties.topK())
@@ -45,18 +49,34 @@ public class RagService {
                         You are P-Bot, a concise Slack assistant.
                         Answer only from the provided context.
                         If the context does not contain the answer, say that you do not know.
+                        Use conversation history only to understand follow-up questions.
+                        Do not use conversation history as a source of factual answers.
                         Preserve facts from Markdown tables, including row labels, column labels, and cell values.
                         Include short source names when useful.
                         """, """
+                        Conversation history:
+                        %s
+
                         Question:
                         %s
 
                         Context:
                         %s
-                        """.formatted(request.question(),
+                        """.formatted(memory, request.question(),
                         context.isBlank() ? "No matching documents were found." : context));
 
+        memoryService.remember(conversationId, request.question(), answer);
         return new AskResponse(answer, contextDocuments.stream().map(this::toSource).toList());
+    }
+
+    private String formatMemory(List<ConversationMemoryService.ConversationTurn> turns) {
+        if (turns.isEmpty()) {
+            return "No previous conversation.";
+        }
+
+        return turns.stream()
+                .map(turn -> "User: " + turn.question() + "\nP-Bot: " + turn.answer())
+                .collect(Collectors.joining("\n\n"));
     }
 
     private String formatContextDocument(Document document) {

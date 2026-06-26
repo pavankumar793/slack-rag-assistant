@@ -69,6 +69,8 @@ Backend environment variables:
 - `PBOT_RAG_TOP_K`: Qdrant candidate chunks to retrieve before reranking, default `50`.
 - `PBOT_RAG_RERANKED_K`: reranked chunks sent to the LLM, default `8`.
 - `PBOT_INGEST_ON_STARTUP`: default `true`.
+- `PBOT_MEMORY_ENABLED`: include recent Slack thread history for follow-up questions, default `true`.
+- `PBOT_MEMORY_MAX_TURNS`: number of recent user/bot turns to keep per conversation, default `6`.
 - `PBOT_RERANKER_ENABLED`: default `true`.
 - `PBOT_RERANKER_URL`: default `http://localhost:8081/rerank`.
 
@@ -86,6 +88,7 @@ posted in the channel instead of a thread.
 Slack mention
   -> Node Slack bot
   -> POST /api/ask
+  -> thread-scoped in-memory conversation history
   -> Qdrant similarity search candidate top 50
   -> local BGE reranker selects best 8 chunks
   -> GitHub Models answer with sources

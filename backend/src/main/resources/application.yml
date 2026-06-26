@@ -44,5 +44,7 @@ pbot:
     reranked-k: ${PBOT_RAG_RERANKED_K:8}
     similarity-threshold: ${PBOT_RAG_SIMILARITY_THRESHOLD:0.0}
     ingest-on-startup: ${PBOT_INGEST_ON_STARTUP:true}
+    memory-enabled: ${PBOT_MEMORY_ENABLED:true}
+    memory-max-turns: ${PBOT_MEMORY_MAX_TURNS:6}
     reranker-enabled: ${PBOT_RERANKER_ENABLED:true}
     reranker-url: ${PBOT_RERANKER_URL:http://localhost:8081/rerank}

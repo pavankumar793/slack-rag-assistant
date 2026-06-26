@@ -14,6 +14,8 @@ public record RagProperties(
         @Min(1) @Max(20) int rerankedK,
         double similarityThreshold,
         boolean ingestOnStartup,
+        boolean memoryEnabled,
+        @Min(1) @Max(20) int memoryMaxTurns,
         boolean rerankerEnabled,
         @NotBlank String rerankerUrl) {
 }
