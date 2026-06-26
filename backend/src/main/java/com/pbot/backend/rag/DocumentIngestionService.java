@@ -47,7 +47,7 @@ public class DocumentIngestionService implements ApplicationRunner {
     }
 
     public IngestResponse ingest() {
-        Path docsPath = resolveDocumentsPath();
+        Path docsPath = Path.of(properties.documentsPath()).toAbsolutePath().normalize();
         if (!Files.exists(docsPath)) {
             LOGGER.warn("Docs path does not exist: {}", docsPath);
             return new IngestResponse(0, 0);
@@ -61,40 +61,6 @@ public class DocumentIngestionService implements ApplicationRunner {
             vectorStore.add(chunks);
         }
         return new IngestResponse(documents.size(), chunks.size());
-    }
-
-    private Path resolveDocumentsPath() {
-        Path configuredPath = Path.of(properties.documentsPath());
-        if (configuredPath.isAbsolute()) {
-            return configuredPath.normalize();
-        }
-
-        List<Path> candidates = List.of(
-                configuredPath.toAbsolutePath().normalize(),
-                Path.of("docs").toAbsolutePath().normalize(),
-                Path.of("..", "docs").toAbsolutePath().normalize(),
-                Path.of("..", "..", "docs").toAbsolutePath().normalize());
-
-        Optional<Path> matchedCandidate = candidates.stream()
-                .filter(Files::exists)
-                .findFirst();
-        if (matchedCandidate.isPresent()) {
-            return matchedCandidate.get();
-        }
-
-        return findDocsDirectoryFromCurrentPath().orElse(candidates.getFirst());
-    }
-
-    private Optional<Path> findDocsDirectoryFromCurrentPath() {
-        Path currentPath = Path.of("").toAbsolutePath().normalize();
-        while (currentPath != null) {
-            Path docsPath = currentPath.resolve("docs").normalize();
-            if (Files.exists(docsPath)) {
-                return Optional.of(docsPath);
-            }
-            currentPath = currentPath.getParent();
-        }
-        return Optional.empty();
     }
 
     private List<Document> readDocuments(Path docsPath) {
