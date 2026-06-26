@@ -47,11 +47,13 @@ public class DocumentIngestionService implements ApplicationRunner {
     }
 
     public IngestResponse ingest() {
-        Path docsPath = Path.of(properties.documentsPath()).toAbsolutePath().normalize();
+        Path docsPath = resolveDocumentsPath();
         if (!Files.exists(docsPath)) {
+            LOGGER.warn("Docs path does not exist: {}", docsPath);
             return new IngestResponse(0, 0);
         }
 
+        LOGGER.info("Ingesting documents from {}", docsPath);
         List<Document> documents = readDocuments(docsPath);
         resetVectorCollection();
         List<Document> chunks = textSplitter.apply(documents);
@@ -59,6 +61,23 @@ public class DocumentIngestionService implements ApplicationRunner {
             vectorStore.add(chunks);
         }
         return new IngestResponse(documents.size(), chunks.size());
+    }
+
+    private Path resolveDocumentsPath() {
+        Path configuredPath = Path.of(properties.documentsPath());
+        if (configuredPath.isAbsolute()) {
+            return configuredPath.normalize();
+        }
+
+        List<Path> candidates = List.of(
+                configuredPath.toAbsolutePath().normalize(),
+                Path.of("docs").toAbsolutePath().normalize(),
+                Path.of("..", "docs").toAbsolutePath().normalize());
+
+        return candidates.stream()
+                .filter(Files::exists)
+                .findFirst()
+                .orElse(candidates.getFirst());
     }
 
     private List<Document> readDocuments(Path docsPath) {

@@ -11,7 +11,7 @@ Create a GitHub fine-grained personal access token with `models:read`, then set
 it locally:
 
 ```powershell
-$env:GITHUB_TOKEN="your-token"
+$env:GITHUB_PERSONAL_ACCESS_TOKEN="your-token"
 ```
 
 Start Qdrant and the local BGE reranker with Podman:
@@ -56,7 +56,7 @@ npm run dev
 
 Backend environment variables:
 
-- `GITHUB_TOKEN`: GitHub token with `models:read`, required for answer generation.
+- `GITHUB_PERSONAL_ACCESS_TOKEN`: GitHub token with `models:read`, required for answer generation.
 - `PBOT_GITHUB_MODEL`: GitHub Models model ID, default `openai/gpt-4.1-mini`.
 - `PBOT_GITHUB_MODELS_ENDPOINT`: default `https://models.github.ai/inference/chat/completions`.
 - `PBOT_LLM_MAX_TOKENS`: max generated tokens, default `1200`.

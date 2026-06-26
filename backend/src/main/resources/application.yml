@@ -33,7 +33,7 @@ pbot:
   llm:
     github:
       endpoint: ${PBOT_GITHUB_MODELS_ENDPOINT:https://models.github.ai/inference/chat/completions}
-      token: ${GITHUB_TOKEN:}
+      token: ${GITHUB_PERSONAL_ACCESS_TOKEN:}
       model: ${PBOT_GITHUB_MODEL:openai/gpt-4.1-mini}
       api-version: ${PBOT_GITHUB_API_VERSION:2026-03-10}
       temperature: ${PBOT_LLM_TEMPERATURE:0.2}

@@ -22,7 +22,7 @@ public class GitHubModelsClient {
 
     public String complete(String systemPrompt, String userPrompt) {
         if (!StringUtils.hasText(properties.token())) {
-            throw new IllegalStateException("GITHUB_TOKEN is required for GitHub Models inference.");
+            throw new IllegalStateException("GITHUB_PERSONAL_ACCESS_TOKEN is required for GitHub Models inference.");
         }
 
         try {
